@@ -1,0 +1,13 @@
+# Enable explicitly with SPRING_PROFILES_ACTIVE=mcp.
+spring:
+  ai:
+    mcp:
+      client:
+        enabled: true
+        sse:
+          connections:
+            tencent-cls:
+              url: https://mcp-api.tencent-cloud.com
+              sse-endpoint: ${TENCENT_MCP_SSE_ENDPOINT}
+cls:
+  mock-enabled: false
