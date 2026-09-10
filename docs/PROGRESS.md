@@ -8,6 +8,6 @@
 
 保留原 Apache 2.0 LICENSE。代码来自用户提供的 SuperBizAgent release-2026-01-02，原 README 署名 chief；没有已知上游 URL，不应虚构。
 
-发布进度：本地 main 已提交，首个提交为 `92d1552`，尚无 remote。GitHub 创建页面曾超时，连接器查询目标返回 404；随后浏览器访问创建页报 ERR_CONNECTION_CLOSED，尚未创建或上传成功。自动审批超时后重试已通过，本地提交阻碍解除。
+发布进度：公开仓库 `https://github.com/fjaflj/oncall-ai-agent` 已创建，本地 `main` 已关联 `origin` 并成功推送。初始代码提交为 `92d1552`，发布提交为 `9731660`；后续若修改代码，继续推送到 `main`。
 
 下一步：确认/创建公开仓库，提交并推送，检查远程文件和 CI。连接器已连接 GitHub，但不提供创建仓库接口；可用浏览器新建页。不要提交 target、上传文件、密钥、IDE 配置或本地日志。
