@@ -1,13 +1,29 @@
-# 项目交接记录
+# 项目状态
 
-用户目标：将 Java 后端 + AI 应用简历项目做基础整理并发布到公开仓库 `fjaflj/oncall-ai-agent`。仓库名称和公开可见性已经得到用户确认。
+## 当前版本能力
 
-已完成：上传路径校验、索引失败 HTTP 503、Mock 日志条件注册、MCP 可选注入与独立 profile、统一聊天模型配置、本机监听、上传大小限制、README、简历说明、GitHub Actions。
+- 支持 TXT/Markdown 运维文档上传、分片、向量化和 Milvus 检索。
+- 支持普通问答、SSE 流式问答和基于会话 ID 的多轮上下文。
+- 支持时间、内部文档、Prometheus 告警和 Mock CLS 日志工具。
+- 支持通过 MCP profile 接入外部日志工具。
+- 支持 Supervisor / Planner / Executor 告警分析流程和 Markdown 报告输出。
+- 支持上传路径校验、文件大小限制和索引失败状态反馈。
+- 支持 JUnit 回归测试和 GitHub Actions 构建验证。
 
-验证：2026-09-10 执行 `mvn --batch-mode --no-transfer-progress verify` 成功，9 个测试通过，0 失败。尚未运行真实 DashScope/Milvus 端到端测试。
+## 已验证项
 
-保留原 Apache 2.0 LICENSE。代码来自用户提供的 SuperBizAgent release-2026-01-02，原 README 署名 chief；没有已知上游 URL，不应虚构。
+执行命令：
 
-发布进度：公开仓库 `https://github.com/fjaflj/oncall-ai-agent` 已创建，本地 `main` 已关联 `origin` 并成功推送。初始代码提交为 `92d1552`，发布提交为 `9731660`；后续若修改代码，继续推送到 `main`。
+```bash
+mvn --batch-mode --no-transfer-progress verify
+```
 
-下一步：确认/创建公开仓库，提交并推送，检查远程文件和 CI。连接器已连接 GitHub，但不提供创建仓库接口；可用浏览器新建页。不要提交 target、上传文件、密钥、IDE 配置或本地日志。
+当前验证结果：9 个测试通过，0 个失败。测试不依赖云密钥或运行中的 Milvus，真实 DashScope、Prometheus、CLS 和 MCP 端到端链路需要在对应环境中单独验证。
+
+## 后续规划
+
+- 增加认证、权限和接口限流；
+- 将会话迁移到 Redis 并增加 TTL；
+- 引入文档版本和索引切换机制；
+- 增加检索质量、工具调用成功率和报告可靠性评测；
+- 在审批和回滚机制完善后，再考虑接入自动化变更执行。

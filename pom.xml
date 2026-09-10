@@ -12,8 +12,10 @@
     </parent>
 
     <groupId>org.example</groupId>
-    <artifactId>super-biz-agent</artifactId>
+    <artifactId>oncall-ai-agent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>OnCall AI Agent</name>
+    <description>Intelligent operations assistant with RAG, Agent tools and AIOps diagnosis</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
