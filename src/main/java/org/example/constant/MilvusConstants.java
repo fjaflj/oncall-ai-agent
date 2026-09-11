@@ -10,12 +10,12 @@ public class MilvusConstants {
     /**
      * Milvus 集合名称
      */
-    public static final String MILVUS_COLLECTION_NAME = "biz";
+    public static final String MILVUS_COLLECTION_NAME = "oncall_knowledge_openai";
     
     /**
-     * 向量维度（豆包 embedding 模型的维度）
+     * text-embedding-3-small 的默认向量维度
      */
-    public static final int VECTOR_DIM = 1024;  // 豆包模型返回1024维向量
+    public static final int VECTOR_DIM = 1536;
     
     /**
      * ID字段最大长度

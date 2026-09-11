@@ -6,6 +6,7 @@ import io.milvus.param.R;
 import io.milvus.param.RpcStatus;
 import io.milvus.param.collection.DropCollectionParam;
 import io.milvus.param.collection.HasCollectionParam;
+import org.example.constant.MilvusConstants;
 
 /**
  * 删除 Milvus Collection 的工具类
@@ -27,7 +28,7 @@ public class DropCollection {
             );
             System.out.println("✓ 连接成功");
             
-            String collectionName = "biz";
+            String collectionName = MilvusConstants.MILVUS_COLLECTION_NAME;
             
             // 检查 Collection 是否存在
             R<Boolean> hasResponse = client.hasCollection(

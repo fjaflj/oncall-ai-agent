@@ -18,7 +18,14 @@
 mvn --batch-mode --no-transfer-progress verify
 ```
 
-当前验证结果：9 个测试通过，0 个失败。测试不依赖云密钥或运行中的 Milvus，真实 DashScope、Prometheus、CLS 和 MCP 端到端链路需要在对应环境中单独验证。
+当前验证结果：17 个测试通过，0 个失败。单元测试不依赖云密钥或运行中的 Milvus；真实 OpenAI、Prometheus、CLS 和 MCP 端到端链路需要在对应环境中单独验证。
+
+## OpenAI 运行配置
+
+- 对话模型默认使用 `gpt-5.6-terra`，向量模型默认使用 `text-embedding-3-small`。
+- API Key 通过本机 `OPENAI_API_KEY` 环境变量提供，支持 `OPENAI_BASE_URL` 兼容网关。
+- 新向量集合为 `oncall_knowledge_openai`，默认维度 1536；旧 `biz` 集合保留不动。
+- 首次运行需要重新上传 `aiops-docs` 文档，完成 OpenAI 向量重建。
 
 ## 后续规划
 

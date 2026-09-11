@@ -47,7 +47,7 @@ public class MilvusClientFactory {
             client = connectToMilvus();
             logger.info("成功连接到 Milvus");
 
-            // 2. 检查并创建 biz collection（如果不存在）
+            // 2. 检查并创建 OpenAI knowledge collection（如果不存在）
             if (!collectionExists(client, MilvusConstants.MILVUS_COLLECTION_NAME)) {
                 logger.info("collection '{}' 不存在，正在创建...", MilvusConstants.MILVUS_COLLECTION_NAME);
                 createBizCollection(client);
@@ -104,7 +104,7 @@ public class MilvusClientFactory {
     }
 
     /**
-     * 创建 biz collection
+     * 创建 OpenAI knowledge collection
      */
     private void createBizCollection(MilvusServiceClient client) {
         // 定义字段
@@ -144,7 +144,7 @@ public class MilvusClientFactory {
         // 创建 collection
         CreateCollectionParam createParam = CreateCollectionParam.newBuilder()
                 .withCollectionName(MilvusConstants.MILVUS_COLLECTION_NAME)
-                .withDescription("Business knowledge collection")
+                .withDescription("OnCall AI Agent knowledge collection")
                 .withSchema(schema)
                 .withShardsNum(MilvusConstants.DEFAULT_SHARD_NUMBER)
                 .build();

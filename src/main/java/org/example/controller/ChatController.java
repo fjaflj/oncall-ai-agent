@@ -1,8 +1,5 @@
 package org.example.controller;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
-import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
-import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.alibaba.cloud.ai.graph.NodeOutput;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
@@ -15,7 +12,7 @@ import org.example.service.ChatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.ToolCallback;
-import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -77,9 +74,8 @@ public class ChatController {
             List<Map<String, String>> history = session.getHistory();
             logger.info("会话历史消息对数: {}", history.size() / 2);
 
-            // 创建 DashScope API 和 ChatModel
-            DashScopeApi dashScopeApi = chatService.createDashScopeApi();
-            DashScopeChatModel chatModel = chatService.createStandardChatModel(dashScopeApi);
+            // 使用 Spring AI 自动配置的 OpenAI ChatModel
+            ChatModel chatModel = chatService.getChatModel();
 
             // 记录可用工具
             chatService.logAvailableTools();
@@ -165,9 +161,8 @@ public class ChatController {
                 List<Map<String, String>> history = session.getHistory();
                 logger.info("ReactAgent 会话历史消息对数: {}", history.size() / 2);
 
-                // 创建 DashScope API 和 ChatModel
-                DashScopeApi dashScopeApi = chatService.createDashScopeApi();
-                DashScopeChatModel chatModel = chatService.createStandardChatModel(dashScopeApi);
+                // 使用 Spring AI 自动配置的 OpenAI ChatModel
+                ChatModel chatModel = chatService.getChatModel();
 
                 // 记录可用工具
                 chatService.logAvailableTools();
@@ -287,8 +282,7 @@ public class ChatController {
             try {
                 logger.info("收到 AI 智能运维请求 - 启动多 Agent 协作流程");
 
-                DashScopeApi dashScopeApi = chatService.createDashScopeApi();
-                DashScopeChatModel chatModel = chatService.createChatModel(dashScopeApi, 0.3, 8000, 0.9);
+                ChatModel chatModel = chatService.getChatModel();
 
                 ToolCallback[] toolCallbacks = chatService.getToolCallbacks();
 
