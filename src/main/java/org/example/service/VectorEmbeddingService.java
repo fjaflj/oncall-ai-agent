@@ -33,8 +33,10 @@ public class VectorEmbeddingService {
         if (embeddingModel == null) {
             throw new IllegalStateException("OpenAI EmbeddingModel is not configured; check OPENAI_API_KEY");
         }
-        logger.info("OpenAI Embedding 初始化完成，模型: {}, 模型维度: {}, Milvus 维度: {}, collection: {}",
-                modelName, embeddingModel.dimensions(), MilvusConstants.VECTOR_DIM, MilvusConstants.MILVUS_COLLECTION_NAME);
+        // 不在启动阶段调用 embeddingModel.dimensions()：部分 Spring AI 实现会通过网络请求读取维度，
+        // 这会让应用启动依赖 OpenAI 网络可用性。首次文档索引时会校验实际返回维度。
+        logger.info("OpenAI Embedding 初始化完成，模型: {}, 配置维度: {}, collection: {}",
+                modelName, MilvusConstants.VECTOR_DIM, MilvusConstants.MILVUS_COLLECTION_NAME);
     }
 
     /** 生成单条文本向量。 */
