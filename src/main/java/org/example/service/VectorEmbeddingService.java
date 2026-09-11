@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,13 +25,16 @@ public class VectorEmbeddingService {
     @Autowired
     private EmbeddingModel embeddingModel;
 
+    @Value("${spring.ai.openai.embedding.options.model:text-embedding-3-small}")
+    private String modelName;
+
     @jakarta.annotation.PostConstruct
     public void init() {
         if (embeddingModel == null) {
             throw new IllegalStateException("OpenAI EmbeddingModel is not configured; check OPENAI_API_KEY");
         }
-        logger.info("OpenAI Embedding 初始化完成，模型维度: {}, Milvus 维度: {}, collection: {}",
-                embeddingModel.dimensions(), MilvusConstants.VECTOR_DIM, MilvusConstants.MILVUS_COLLECTION_NAME);
+        logger.info("OpenAI Embedding 初始化完成，模型: {}, 模型维度: {}, Milvus 维度: {}, collection: {}",
+                modelName, embeddingModel.dimensions(), MilvusConstants.VECTOR_DIM, MilvusConstants.MILVUS_COLLECTION_NAME);
     }
 
     /** 生成单条文本向量。 */
