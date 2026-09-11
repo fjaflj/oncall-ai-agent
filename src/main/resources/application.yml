@@ -55,7 +55,15 @@ document:
 
 # RAG 配置
 rag:
-  top-k: 3  # 检索返回的最相似文档数量
+  top-k: 3  # Rerank 后最终返回给模型的文档数量
+  rerank:
+    enabled: ${RAG_RERANK_ENABLED:false}
+    # 默认使用 SiliconFlow Cross Encoder，也可替换为其他兼容 /rerank 的服务
+    url: ${RAG_RERANK_URL:https://api.siliconflow.com/v1/rerank}
+    api-key: ${RAG_RERANK_API_KEY:${SILICONFLOW_API_KEY:}}
+    model: ${RAG_RERANK_MODEL:BAAI/bge-reranker-v2-m3}
+    recall-top-k: ${RAG_RECALL_TOP_K:12}
+    fail-on-error: ${RAG_RERANK_FAIL_ON_ERROR:false}
   model: ${OPENAI_CHAT_MODEL:gpt-5.6-terra}
 
 # Prometheus 配置

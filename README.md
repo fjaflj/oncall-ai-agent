@@ -5,6 +5,7 @@ OnCall AI Agent 是面向企业运维场景的智能问答与告警诊断平台�
 ## 核心功能
 
 - RAG 运维知识库：支持 TXT/Markdown，按标题和段落分片，使用 OpenAI `text-embedding-3-small` 向量化并写入 Milvus。
+- 两阶段检索：Milvus 先召回候选文档，Cross Encoder/Reranker 对候选内容重新打分，最终只将 Top-K 高相关内容交给 Agent。
 - 多轮 Agent 问答：ReactAgent 根据问题自动调用时间、内部文档、Prometheus 告警、CLS 日志和 MCP 工具。
 - AIOps 诊断：Supervisor 调度 Planner 与 Executor，基于监控、日志和知识库证据输出告警分析报告。
 - 流式交互：`/api/chat_stream` 和 `/api/ai_ops` 使用 SSE 返回长耗时结果。
@@ -17,9 +18,13 @@ TXT / Markdown
     -> 标题与段落分片（最大 800 字符，重叠 100 字符）
     -> OpenAI text-embedding-3-small
     -> Milvus oncall_knowledge_openai（1536 维，IVF_FLAT）
-    -> 相似度检索（默认 Top 3）
+    -> Milvus 向量召回（启用 Rerank 时默认 Top 12）
+    -> Cross Encoder 精排
+    -> 最终 Top 3
     -> Agent 基于内容、来源、分数和元数据生成答案
 ```
+
+Rerank 默认关闭，未配置时保持原有的 Milvus 向量检索行为。开启后，默认通过 SiliconFlow 的兼容接口调用 `BAAI/bge-reranker-v2-m3`；Rerank 服务异常时默认回退到向量召回结果，也可以通过 `RAG_RERANK_FAIL_ON_ERROR=true` 改为直接报错。
 
 首次迁移到 OpenAI Embedding 后，应用会自动创建新集合 `oncall_knowledge_openai`；原有 `biz` 集合不会删除。请重新上传 `aiops-docs` 中的文档完成重建索引。
 
@@ -103,6 +108,15 @@ export OPENAI_API_KEY="你的 OpenAI API Key"
 $env:OPENAI_BASE_URL = "https://你的网关地址"
 ```
 
+可选开启 Cross Encoder 精排（需要单独的 Rerank 服务密钥；OpenAI Key 不等同于 Rerank Key）：
+
+```powershell
+$env:RAG_RERANK_ENABLED = "true"
+$env:RAG_RERANK_API_KEY = "你的 SiliconFlow API Key"
+$env:RAG_RERANK_MODEL = "BAAI/bge-reranker-v2-m3"
+$env:RAG_RECALL_TOP_K = "12"
+```
+
 ### 3. 启动应用
 
 ```bash
@@ -121,6 +135,12 @@ mvn spring-boot:run
 | `OPENAI_BASE_URL` | `https://api.openai.com` | OpenAI 兼容网关，可选 |
 | `OPENAI_CHAT_MODEL` | `gpt-5.6-terra` | 对话、Agent 和 AIOps 模型 |
 | `OPENAI_EMBEDDING_MODEL` | `text-embedding-3-small` | RAG 向量模型 |
+| `RAG_RERANK_ENABLED` | `false` | 是否启用 Cross Encoder 精排 |
+| `RAG_RERANK_API_KEY` | 无 | Rerank 服务 API Key，可选 |
+| `RAG_RERANK_URL` | SiliconFlow `/v1/rerank` | Rerank 服务地址 |
+| `RAG_RERANK_MODEL` | `BAAI/bge-reranker-v2-m3` | Rerank 模型 |
+| `RAG_RECALL_TOP_K` | `12` | 启用 Rerank 时的初始召回数量 |
+| `RAG_RERANK_FAIL_ON_ERROR` | `false` | Rerank 失败时是否拒绝回退 |
 | `SERVER_ADDRESS` | `127.0.0.1` | Web 服务监听地址 |
 | `PROMETHEUS_MOCK_ENABLED` | `true` | 是否使用 Mock 告警 |
 | `CLS_MOCK_ENABLED` | `true` | 是否使用 Mock 日志 |
@@ -164,6 +184,7 @@ curl -X POST http://localhost:9900/api/upload \
 - Milvus 连接失败：检查 Docker 容器状态、`milvus.host`、`milvus.port` 和 `/milvus/health`。
 - MCP 失败：本地演示保持 MCP 关闭；真实日志查询时检查 `SPRING_PROFILES_ACTIVE` 和 endpoint。
 - 上传返回 503：文件已保存但向量索引失败，请检查 OpenAI Key、模型权限和 Milvus 状态后重新上传。
+- Rerank 未生效：确认 `RAG_RERANK_ENABLED=true`、Rerank Key 已配置，并查看日志中的 `Rerank 完成` 或回退提示。
 
 ## 验证与文档
 

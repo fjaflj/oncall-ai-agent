@@ -18,8 +18,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 向量搜索服务
- * 负责从 Milvus 中搜索相似向量
+ * 向量搜索服务。
+ * 负责从 Milvus 召回候选文档，再交给 RerankService 做可选的二阶段精排。
  */
 @Service
 public class VectorSearchService {
@@ -32,11 +32,14 @@ public class VectorSearchService {
     @Autowired
     private VectorEmbeddingService embeddingService;
 
+    @Autowired
+    private RerankService rerankService;
+
     /**
-     * 搜索相似文档
+     * 搜索相似文档。启用 Rerank 时，topK 表示精排后的最终结果数。
      * 
      * @param query 查询文本
-     * @param topK 返回最相似的K个结果
+     * @param topK 最终返回的结果数
      * @return 搜索结果列表
      */
     public List<SearchResult> searchSimilarDocuments(String query, int topK) {
@@ -48,11 +51,12 @@ public class VectorSearchService {
             logger.debug("查询向量生成成功, 维度: {}", queryVector.size());
 
             // 2. 构建搜索参数
+            int recallTopK = rerankService.getRecallTopK(topK);
             SearchParam searchParam = SearchParam.newBuilder()
                     .withCollectionName(MilvusConstants.MILVUS_COLLECTION_NAME)
                     .withVectorFieldName("vector")
                     .withVectors(Collections.singletonList(queryVector))
-                    .withTopK(topK)
+                    .withTopK(recallTopK)
                     .withMetricType(io.milvus.param.MetricType.L2)
                     .withOutFields(List.of("id", "content", "metadata"))
                     .withParams("{\"nprobe\":10}")
@@ -84,8 +88,10 @@ public class VectorSearchService {
                 results.add(result);
             }
 
-            logger.info("搜索完成, 找到 {} 个相似文档", results.size());
-            return results;
+            List<SearchResult> finalResults = rerankService.rerank(query, results, topK);
+            logger.info("搜索完成, 向量召回={}, 最终返回={}, rerank={}",
+                    results.size(), finalResults.size(), rerankService.isEnabled());
+            return finalResults;
 
         } catch (Exception e) {
             logger.error("搜索相似文档失败", e);
@@ -103,6 +109,5 @@ public class VectorSearchService {
         private String content;
         private float score;
         private String metadata;
-
     }
 }
